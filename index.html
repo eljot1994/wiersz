@@ -2,26 +2,308 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Mój Wiersz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moje Wiersze</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: 'Georgia', serif;
-      background-color: #111;
-      color: #fefefe;
-      padding: 3rem;
-      max-width: 800px;
-      margin: auto;
+    .poem-container {
+      scroll-snap-type: y mandatory;
+      height: calc(100vh - 4rem);
+    }
+    .poem {
+      scroll-snap-align: start;
+      min-height: calc(100vh - 4rem);
+    }
+    .sidebar {
+      scrollbar-width: thin;
+      scrollbar-color: #4b5563 #1f2937;
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background-color: #4b5563;
+      border-radius: 2px;
+    }
+    .sidebar-item:hover .sidebar-date {
+      opacity: 1;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+      }
+      .sidebar-text {
+        display: none;
+      }
     }
   </style>
 </head>
-<body>
-  <h1>Brzeg</h1>
-  <p>
-    Powoli odklejam się od brzegów<br>
-    tej myśli, co tonie<br>
-    jeszcze żyję, ale<br>
-    już nie jestem pewien, gdzie kończę się ja,<br>
-    a zaczyna cisza.
-  </p>
+<body class="bg-gray-900 text-gray-100 flex h-screen overflow-hidden">
+  <!-- Sidebar Navigation -->
+  <div class="sidebar bg-gray-800 w-48 overflow-y-auto flex-shrink-0 transition-all duration-300">
+    <div class="p-4 border-b border-gray-700 flex items-center justify-between">
+      <h1 class="text-xl font-serif font-bold">Moje Wiersze</h1>
+      <button id="menu-toggle" class="md:hidden text-gray-400 hover:text-white">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <div class="p-2 space-y-1" id="poem-list">
+      <!-- Poem dates will be added here by JavaScript -->
+    </div>
+    <div class="p-4 border-t border-gray-700 mt-auto">
+      <div class="text-sm text-gray-400 text-center">Dodaj nowy wiersz</div>
+      <button id="add-poem" class="mt-2 w-full bg-gray-700 hover:bg-gray-600 text-white py-1 px-3 rounded text-sm flex items-center justify-center">
+        <i class="fas fa-plus mr-2"></i>
+        <span class="sidebar-text">Nowy wiersz</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Header -->
+    <header class="bg-gray-800 p-4 flex items-center justify-between border-b border-gray-700">
+      <div>
+        <h2 id="current-poem-date" class="text-lg font-serif">Brzeg</h2>
+        <div id="current-poem-date-display" class="text-sm text-gray-400">1 stycznia 2023</div>
+      </div>
+      <div class="flex space-x-2">
+        <button id="prev-poem" class="p-2 text-gray-400 hover:text-white">
+          <i class="fas fa-chevron-up"></i>
+        </button>
+        <button id="next-poem" class="p-2 text-gray-400 hover:text-white">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Poems Container -->
+    <div class="poem-container overflow-y-auto flex-1">
+      <!-- Poems will be added here by JavaScript -->
+    </div>
+  </div>
+
+  <!-- Add Poem Modal -->
+  <div id="add-poem-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+      <h3 class="text-xl font-serif mb-4">Dodaj nowy wiersz</h3>
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Data</label>
+        <input type="date" id="poem-date" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Tytuł</label>
+        <input type="text" id="poem-title" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Treść</label>
+        <textarea id="poem-content" rows="8" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-serif"></textarea>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button id="cancel-add" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Anuluj</button>
+        <button id="save-poem" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded">Zapisz</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sample poems data
+    let poems = [
+      {
+        date: "2023-01-01",
+        title: "Brzeg",
+        content: `Powoli odklejam się od brzegów<br>
+        tej myśli, co tonie<br>
+        jeszcze żyję, ale<br>
+        już nie jestem pewien, gdzie kończę się ja,<br>
+        a zaczyna cisza.`
+      },
+    ];
+
+    // DOM elements
+    const poemList = document.getElementById('poem-list');
+    const poemContainer = document.querySelector('.poem-container');
+    const currentPoemDate = document.getElementById('current-poem-date');
+    const currentPoemDateDisplay = document.getElementById('current-poem-date-display');
+    const prevPoemBtn = document.getElementById('prev-poem');
+    const nextPoemBtn = document.getElementById('next-poem');
+    const addPoemBtn = document.getElementById('add-poem');
+    const addPoemModal = document.getElementById('add-poem-modal');
+    const cancelAddBtn = document.getElementById('cancel-add');
+    const savePoemBtn = document.getElementById('save-poem');
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    // Current poem index
+    let currentIndex = 0;
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      return date.toLocaleDateString('pl-PL', options);
+    }
+
+    // Format date for sidebar
+    function formatSidebarDate(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      return `${day < 10 ? '0' + day : day}.${month < 10 ? '0' + month : month}`;
+    }
+
+    // Render poems list in sidebar
+    function renderPoemList() {
+      poemList.innerHTML = '';
+      poems.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      poems.forEach((poem, index) => {
+        const poemItem = document.createElement('div');
+        poemItem.className = `sidebar-item group flex items-center p-2 rounded hover:bg-gray-700 cursor-pointer transition ${index === currentIndex ? 'bg-gray-700' : ''}`;
+        poemItem.dataset.index = index;
+        
+        poemItem.innerHTML = `
+          <div class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full flex-shrink-0">
+            <i class="fas fa-pen-nib text-sm text-gray-300"></i>
+          </div>
+          <div class="ml-3 overflow-hidden">
+            <div class="text-white truncate sidebar-text">${poem.title}</div>
+            <div class="sidebar-date text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition sidebar-text">${formatDate(poem.date)}</div>
+          </div>
+          <div class="ml-auto text-xs text-gray-500">${formatSidebarDate(poem.date)}</div>
+        `;
+        
+        poemItem.addEventListener('click', () => {
+          currentIndex = index;
+          renderCurrentPoem();
+          updateSidebarActiveItem();
+        });
+        
+        poemList.appendChild(poemItem);
+      });
+    }
+
+    // Render current poem
+    function renderCurrentPoem() {
+      poemContainer.innerHTML = '';
+      
+      const poem = poems[currentIndex];
+      const poemElement = document.createElement('div');
+      poemElement.className = 'poem p-8 md:p-12 flex flex-col justify-center';
+      
+      poemElement.innerHTML = `
+        <h2 class="text-3xl md:text-4xl font-serif font-bold mb-6">${poem.title}</h2>
+        <div class="text-lg md:text-xl font-serif leading-relaxed max-w-2xl mx-auto">${poem.content}</div>
+        <div class="mt-8 text-sm text-gray-500 text-right">${formatDate(poem.date)}</div>
+      `;
+      
+      poemContainer.appendChild(poemElement);
+      currentPoemDate.textContent = poem.title;
+      currentPoemDateDisplay.textContent = formatDate(poem.date);
+      
+      // Scroll to top
+      poemContainer.scrollTo(0, 0);
+    }
+
+    // Update active item in sidebar
+    function updateSidebarActiveItem() {
+      const items = poemList.querySelectorAll('.sidebar-item');
+      items.forEach((item, index) => {
+        if (index === currentIndex) {
+          item.classList.add('bg-gray-700');
+        } else {
+          item.classList.remove('bg-gray-700');
+        }
+      });
+    }
+
+    // Navigation
+    prevPoemBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderCurrentPoem();
+        updateSidebarActiveItem();
+      }
+    });
+
+    nextPoemBtn.addEventListener('click', () => {
+      if (currentIndex < poems.length - 1) {
+        currentIndex++;
+        renderCurrentPoem();
+        updateSidebarActiveItem();
+      }
+    });
+
+    // Add new poem
+    addPoemBtn.addEventListener('click', () => {
+      // Set today's date as default
+      const today = new Date();
+      const formattedDate = today.toISOString().split('T')[0];
+      document.getElementById('poem-date').value = formattedDate;
+      document.getElementById('poem-title').value = '';
+      document.getElementById('poem-content').value = '';
+      addPoemModal.classList.remove('hidden');
+    });
+
+    cancelAddBtn.addEventListener('click', () => {
+      addPoemModal.classList.add('hidden');
+    });
+
+    savePoemBtn.addEventListener('click', () => {
+      const date = document.getElementById('poem-date').value;
+      const title = document.getElementById('poem-title').value.trim();
+      const content = document.getElementById('poem-content').value.trim();
+      
+      if (!date || !title || !content) {
+        alert('Proszę wypełnić wszystkie pola');
+        return;
+      }
+      
+      // Replace line breaks with <br> tags
+      const formattedContent = content.replace(/\n/g, '<br>');
+      
+      // Add new poem
+      poems.push({
+        date,
+        title,
+        content: formattedContent
+      });
+      
+      // Update UI
+      currentIndex = poems.length - 1;
+      renderPoemList();
+      renderCurrentPoem();
+      addPoemModal.classList.add('hidden');
+    });
+
+    // Toggle sidebar on mobile
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('absolute');
+      sidebar.classList.toggle('z-40');
+      sidebar.classList.toggle('h-full');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768 && !sidebar.contains(e.target) && e.target !== menuToggle) {
+        sidebar.classList.add('hidden');
+      }
+    });
+
+    // Initialize
+    renderPoemList();
+    renderCurrentPoem();
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        prevPoemBtn.click();
+      } else if (e.key === 'ArrowDown') {
+        nextPoemBtn.click();
+      }
+    });
+  </script>
 </body>
 </html>
