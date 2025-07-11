@@ -106,7 +106,9 @@ fetch('./poems.json')
       poemContainer.innerHTML = '';
       return;
     }
-
+    if (window.MathJax) {
+  MathJax.typesetPromise();
+}
     renderPoemList();
     renderCurrentPoem();
   });
