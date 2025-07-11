@@ -2,7 +2,7 @@
   min-height: calc(100vh - 8rem);
 }
 
-/* Scrollbar sidebar */
+/* Styl scrollbara bocznego */
 #poem-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -13,4 +13,12 @@
 #poem-list {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Sidebar zawsze widoczny na desktopie */
+@media (min-width: 768px) {
+  #sidebar {
+    transform: translateX(0) !important;
+    position: static !important;
+  }
 }

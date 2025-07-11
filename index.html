@@ -7,42 +7,50 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']],
-      displayMath: [['$$','$$']],
-      processEscapes: true
-    },
-    options: {
-      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    startup: {
-      typeset: false
-    }
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
-
-
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$','$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      startup: {
+        typeset: false
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body class="bg-white text-gray-800 h-screen flex overflow-hidden font-sans">
+
+  <!-- Overlay dla mobile -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 z-20 hidden md:hidden"></div>
+
   <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+  <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out fixed md:static h-full z-30">
     <div class="h-16 flex items-center px-4 border-b border-gray-200">
-      <h1 class="text-lg font-semibold tracking-tight">Przestrzeń na wiersze</h1>
     </div>
     <nav id="poem-list" class="flex-1 overflow-y-auto"></nav>
   </aside>
 
   <!-- Main Content -->
   <main class="flex-1 flex flex-col">
-    <header class="h-16 flex items-center justify-end px-4 border-b border-gray-200 bg-white">
+    <header class="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-white">
+      <!-- Hamburger -->
+      <button id="toggleSidebarBtn" class="md:hidden p-2 rounded hover:bg-gray-100 z-40">
+        <i class="fas fa-bars"></i>
+      </button>
+<h1 class="text-lg font-semibold tracking-tight">Przestrzeń na wiersze</h1>
+      <!-- Poem navigation -->
       <div class="flex space-x-2">
-        <button id="prevPoemBtn" class="p-2 rounded-full hover:bg-amber-100 transition">
+
+        <button id="prevPoemBtn" class="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition">
           <i class="fas fa-chevron-left"></i>
         </button>
-        <button id="nextPoemBtn" class="p-2 rounded-full hover:bg-amber-200 transition">
+        <button id="nextPoemBtn" class="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition">
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -54,5 +62,19 @@
   </main>
 
   <script src="./script.js"></script>
+  <script>
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleSidebar() {
+      const isOpen = !sidebar.classList.contains('-translate-x-full');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden', isOpen);
+    }
+
+    toggleSidebarBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+  </script>
 </body>
 </html>

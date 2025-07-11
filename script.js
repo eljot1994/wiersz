@@ -56,7 +56,7 @@ function renderCurrentPoem() {
 poemElement.innerHTML = `
   <div class="text-2xl font-serif text-gray-700 mb-1">${formatDate(poem.date)}</div>
   ${poem.subdate ? `<div class="text-sm italic text-gray-400 mb-3">${poem.subdate}</div>` : ''}
-  ${poem.title ? `<div class="text-base font-serif text-gray-600 mb-6">${poem.title}</div>` : ''}
+  ${poem.title ? `<div class="text-2xl font-serif text-gray-600 mb-6">${poem.title}</div>` : ''}
   <div class="text-lg md:text-xl font-serif leading-relaxed max-w-2xl mx-auto text-gray-500 prose prose-sm prose-gray break-words">
     ${poem.content}
   </div>
