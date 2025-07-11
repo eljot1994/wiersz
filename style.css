@@ -67,3 +67,12 @@
 .dark .sidebar-item.bg-active {
   background-color: #4b5563; /* gray-600 */
 }
+
+.month-group.collapsed .sidebar-item {
+  display: none;
+}
+
+.month-header span:first-child {
+  width: 1.25em;
+  display: inline-block;
+}
