@@ -8,6 +8,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
   <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <script>
     window.MathJax = {
       tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -24,34 +29,39 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
-<body class="bg-white text-gray-800 h-screen flex overflow-hidden font-sans">
+<body class="bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 h-screen flex overflow-hidden font-sans">
 
   <!-- Overlay dla mobile -->
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 z-20 hidden md:hidden"></div>
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out fixed md:static h-full z-30">
-    <div class="h-16 flex items-center px-4 border-b border-gray-200">
-    </div>
+  <aside id="sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out fixed md:static h-full z-30">
+    <div class="h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
+      </div>
     <nav id="poem-list" class="flex-1 overflow-y-auto"></nav>
   </aside>
 
   <!-- Main Content -->
   <main class="flex-1 flex flex-col">
-    <header class="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-white">
+    <header class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
       <!-- Hamburger -->
-      <button id="toggleSidebarBtn" class="md:hidden p-2 rounded hover:bg-gray-100 z-40">
-        <i class="fas fa-bars"></i>
-      </button>
-<h1 class="text-lg font-semibold tracking-tight">Przestrzeń na wiersze</h1>
-      <!-- Poem navigation -->
-      <div class="flex space-x-2">
+      <div class="flex items-center space-x-2">
+        <button id="toggleSidebarBtn" class="md:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 z-50">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-lg font-semibold tracking-tight">Przestrzeń na wiersze</h1>
+      </div>
 
-        <button id="prevPoemBtn" class="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition">
+      <!-- Poem navigation + dark mode -->
+      <div class="flex items-center space-x-2">
+        <button id="prevPoemBtn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
           <i class="fas fa-chevron-left"></i>
         </button>
-        <button id="nextPoemBtn" class="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition">
+        <button id="nextPoemBtn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
           <i class="fas fa-chevron-right"></i>
+        </button>
+        <button id="toggleDark" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-xl">
+          <i id="themeIcon" class="fas fa-moon"></i>
         </button>
       </div>
     </header>
@@ -63,6 +73,7 @@
 
   <script src="./script.js"></script>
   <script>
+    // Sidebar toggle
     const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
@@ -75,6 +86,30 @@
 
     toggleSidebarBtn.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
+
+    // Dark mode system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const storedTheme = localStorage.getItem('theme');
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+
+    function updateThemeIcon() {
+      icon.className = html.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+    updateThemeIcon();
+
+    // Toggle and persist
+    document.getElementById('toggleDark').addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      updateThemeIcon();
+    });
   </script>
 </body>
 </html>

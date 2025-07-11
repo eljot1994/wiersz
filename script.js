@@ -26,15 +26,15 @@ function renderPoemList() {
     if (poemMonth !== currentMonth) {
       currentMonth = poemMonth;
       const monthHeader = document.createElement('div');
-      monthHeader.className = 'px-4 py-2 text-sm font-medium text-gray-500 bg-gray-50 sticky top-0';
+      monthHeader.className = 'px-4 py-2 text-sm font-medium text-gray-500 bg-hover sticky top-0';
       monthHeader.textContent = currentMonth;
       poemList.appendChild(monthHeader);
     }
 
     const poemItem = document.createElement('div');
-    poemItem.className = `sidebar-item px-4 py-2 hover:bg-gray-100 cursor-pointer ${index === currentIndex ? 'bg-gray-100' : ''}`;
+    poemItem.className = `sidebar-item px-4 py-2 hover:bg-hover cursor-pointer ${index === currentIndex ? 'bg-active' : ''}`;
     poemItem.dataset.index = index;
-    poemItem.innerHTML = `<div class="text-gray-800">${formatDate(poem.date)}</div>`;
+    poemItem.innerHTML = `<div class="text-active">${formatDate(poem.date)}</div>`;
     poemItem.addEventListener('click', () => {
       currentIndex = index;
       renderCurrentPoem();
@@ -73,7 +73,7 @@ poemElement.innerHTML = `
 
 function updateSidebarActiveItem() {
   document.querySelectorAll('.sidebar-item').forEach((item, index) => {
-    item.classList.toggle('bg-gray-200', index === currentIndex);
+    item.classList.toggle('bg-active', index === currentIndex);
   });
 }
 

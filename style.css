@@ -2,7 +2,7 @@
   min-height: calc(100vh - 8rem);
 }
 
-/* Styl scrollbara bocznego */
+/* Scrollbar dla sidebaru */
 #poem-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -21,4 +21,49 @@
     transform: translateX(0) !important;
     position: static !important;
   }
+}
+
+/* Styl dla nagłówka miesiąca w sidebarze */
+.month-header {
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280; /* gray-500 */
+  background-color: #f9fafb; /* gray-50 */
+  z-index: 10;
+}
+
+.dark .month-header {
+  background-color: #1f2937; /* gray-800 */
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Styl dla elementów listy wierszy */
+.sidebar-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #1f2937; /* gray-800 */
+}
+
+.sidebar-item:hover {
+  background-color: #f3f4f6; /* gray-100 */
+}
+
+.sidebar-item.bg-active {
+  background-color: #e5e7eb; /* gray-200 */
+}
+
+.dark .sidebar-item {
+  color: #d1d5db; /* gray-300 */
+}
+
+.dark .sidebar-item:hover {
+  background-color: #374151; /* gray-700 */
+}
+
+.dark .sidebar-item.bg-active {
+  background-color: #4b5563; /* gray-600 */
 }
