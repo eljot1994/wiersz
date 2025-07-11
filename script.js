@@ -93,7 +93,7 @@ nextPoemBtn.addEventListener('click', () => {
   }
 });
 
-fetch('poems.json')
+fetch('./poems.json')
   .then(response => response.json())
   .then(data => {
     poems = data.filter(poem =>
