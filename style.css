@@ -1,0 +1,16 @@
+.poem {
+  min-height: calc(100vh - 8rem);
+}
+
+/* Scrollbar sidebar */
+#poem-list::-webkit-scrollbar {
+  width: 6px;
+}
+#poem-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+#poem-list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
