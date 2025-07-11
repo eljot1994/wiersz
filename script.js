@@ -5,6 +5,7 @@ const poemList = document.getElementById('poem-list');
 const poemContainer = document.querySelector('.poem-container');
 const prevPoemBtn = document.getElementById('prevPoemBtn');
 const nextPoemBtn = document.getElementById('nextPoemBtn');
+const author = "Jarosław Derda";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -52,14 +53,22 @@ function renderCurrentPoem() {
   const poemElement = document.createElement('div');
   poemElement.className = 'poem p-8 md:p-12 flex flex-col justify-center';
 
-  poemElement.innerHTML = `
-    <div class="text-2xl font-serif text-gray-700 mb-1">${formatDate(poem.date)}</div>
-    ${poem.title ? `<div class="text-base font-serif text-gray-600 mb-6">${poem.title}</div>` : ''}
-    <div class="text-lg md:text-xl font-serif leading-relaxed max-w-2xl mx-auto text-gray-500">${poem.content}</div>
-  `;
+poemElement.innerHTML = `
+  <div class="text-2xl font-serif text-gray-700 mb-1">${formatDate(poem.date)}</div>
+  ${poem.subdate ? `<div class="text-sm italic text-gray-400 mb-3">${poem.subdate}</div>` : ''}
+  ${poem.title ? `<div class="text-base font-serif text-gray-600 mb-6">${poem.title}</div>` : ''}
+  <div class="text-lg md:text-xl font-serif leading-relaxed max-w-2xl mx-auto text-gray-500 prose prose-sm prose-gray break-words">
+    ${poem.content}
+  </div>
+  <div class="text-sm text-gray-400 mt-6 text-right max-w-2xl mx-auto italic">— ${author}</div>
+`;
+
 
   poemContainer.appendChild(poemElement);
   poemContainer.scrollTo(0, 0);
+  if (window.MathJax) {
+  MathJax.typesetPromise([poemContainer]);
+}
 }
 
 function updateSidebarActiveItem() {
