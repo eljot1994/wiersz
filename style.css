@@ -30,14 +30,13 @@
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280; /* gray-500 */
-  background-color: #f9fafb; /* gray-50 */
+  color: #6b7280;
+  background-color: #f9fafb;
   z-index: 10;
 }
-
 .dark .month-header {
-  background-color: #1f2937; /* gray-800 */
-  color: #9ca3af; /* gray-400 */
+  background-color: #1f2937;
+  color: #9ca3af;
 }
 
 /* Styl dla elementów listy wierszy */
@@ -45,34 +44,138 @@
   padding: 0.5rem 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
-  color: #1f2937; /* gray-800 */
+  color: #1f2937;
 }
-
 .sidebar-item:hover {
-  background-color: #f3f4f6; /* gray-100 */
+  background-color: #f3f4f6;
 }
-
 .sidebar-item.bg-active {
-  background-color: #e5e7eb; /* gray-200 */
+  background-color: #e5e7eb;
 }
-
 .dark .sidebar-item {
-  color: #d1d5db; /* gray-300 */
+  color: #d1d5db;
 }
-
 .dark .sidebar-item:hover {
-  background-color: #374151; /* gray-700 */
+  background-color: #374151;
 }
-
 .dark .sidebar-item.bg-active {
-  background-color: #4b5563; /* gray-600 */
+  background-color: #4b5563;
 }
-
 .month-group.collapsed .sidebar-item {
   display: none;
 }
-
 .month-header span:first-child {
   width: 1.25em;
   display: inline-block;
 }
+
+/* --- MOTYW POETYCKI --- */
+html.theme-poetic {
+  background-color: #f5efe4;
+  background-image:
+    radial-gradient(rgba(100, 70, 40, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 70, 40, 0.02), transparent 80%);
+  background-size: 4px 4px, 100% 100%;
+  background-attachment: fixed;
+  color: #3e3027;
+  font-family: 'Cormorant Garamond', serif !important;
+}
+
+html.theme-poetic::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 20%, rgba(100,70,40,0.02), transparent),
+              radial-gradient(circle at 70% 80%, rgba(100,70,40,0.02), transparent);
+  z-index: 0;
+}
+
+html.theme-poetic .sidebar-item {
+  color: #3e3027;
+}
+html.theme-poetic .sidebar-item:hover {
+  background-color: rgba(100, 70, 40, 0.05);
+}
+html.theme-poetic .sidebar-item.bg-active {
+  background-color: rgba(100, 70, 40, 0.1);
+}
+html.theme-poetic .month-header {
+  background-color: rgba(100, 70, 40, 0.05);
+  color: #5a483a;
+}
+html.theme-poetic .prose {
+  color: #3e3027;
+}
+html.theme-poetic mark {
+  background-color: #d6b55b;
+  color: #1e1b2f;
+}
+
+html.theme-poetic body,
+html.theme-poetic .poem-container,
+html.theme-poetic .sidebar-item,
+html.theme-poetic .month-header,
+html.theme-poetic .prose,
+html.theme-poetic .poem {
+  font-family: 'Cormorant Garamond', serif !important;
+}
+
+
+html.theme-light {
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Georgia', serif;
+}
+
+html.theme-light body,
+html.theme-light .poem-container,
+html.theme-light .sidebar-item,
+html.theme-light .month-header,
+html.theme-light .prose,
+html.theme-light .poem {
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Georgia', serif;
+}
+
+html.theme-light .sidebar-item:hover {
+  background-color: #f0f0f0;
+}
+
+html.theme-light .sidebar-item.bg-active {
+  background-color: #e0e0e0;
+}
+
+html.theme-light .month-header {
+  background-color: #f9f9f9;
+  color: #444;
+}
+
+html.theme-light mark {
+  background-color: #000;
+  color: #fff;
+}
+
+html.theme-poetic .poem {
+  font-family: 'Cormorant Garamond', serif !important;
+}
+
+html.theme-poetic .poem {
+  font-family: 'Cormorant Garamond', serif !important;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 24px,
+    rgba(100, 70, 40, 0.08) 26px
+  );
+  background-size: 100% 28px;
+  background-position-y: 4px; /* przesunięcie linii w dół */
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+.theme-poetic .poem-date,
+.theme-poetic .poem-title {
+  font-family: 'Cormorant Garamond', serif;
+}
+

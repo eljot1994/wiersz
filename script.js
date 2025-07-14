@@ -8,8 +8,10 @@ const prevPoemBtn = document.getElementById('prevPoemBtn');
 const nextPoemBtn = document.getElementById('nextPoemBtn');
 const searchInput = document.getElementById('poemSearch');
 const searchMode = document.getElementById('searchMode');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
 const author = "Jarosław Derda";
 
+// Formatowanie daty
 function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -19,6 +21,21 @@ function formatMonthHeader(dateString) {
   return new Date(dateString).toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' });
 }
 
+function highlight(text) {
+  const query = searchInput?.value.toLowerCase().trim();
+  if (!query || query.length < 2) return text;
+
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = searchMode.checked
+    ? `\\b${escaped}\\b`  // tylko całe słowo
+    : escaped;            // dowolny fragment
+
+  const regex = new RegExp(`(${pattern})`, 'gi');
+
+  return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-600 text-black dark:text-white rounded px-1">$1</mark>');
+}
+
+// Rysowanie listy wierszy
 function renderPoemList() {
   poemList.innerHTML = '';
   filteredPoems.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -34,7 +51,7 @@ function renderPoemList() {
       groupWrapper.classList.add('month-group');
 
       const monthHeader = document.createElement('div');
-      monthHeader.className = 'px-4 py-2 text-sm font-medium text-gray-500 bg-hover sticky top-0 cursor-pointer flex items-center gap-2';
+      monthHeader.className = 'month-header flex items-center gap-2 cursor-pointer';
 
       const icon = document.createElement('i');
       icon.className = poemMonth === currentPoemMonth
@@ -65,7 +82,7 @@ function renderPoemList() {
 
     const group = monthGroups.get(poemMonth);
     const poemItem = document.createElement('div');
-    poemItem.className = `sidebar-item px-4 py-2 hover:bg-hover cursor-pointer ${index === currentIndex ? 'bg-active' : ''}`;
+    poemItem.className = `sidebar-item ${index === currentIndex ? 'bg-active' : ''}`;
     poemItem.dataset.index = index;
     poemItem.innerHTML = `<div class="text-active">${formatDate(poem.date)}</div>`;
 
@@ -78,7 +95,7 @@ function renderPoemList() {
     group.appendChild(poemItem);
   });
 
-  // ukryj miesiące bez dzieci
+  // Usuwamy puste miesiące
   document.querySelectorAll('.month-group').forEach(group => {
     const children = group.querySelectorAll('.sidebar-item');
     if (children.length === 0) {
@@ -87,6 +104,7 @@ function renderPoemList() {
   });
 }
 
+// Wyświetlanie wiersza
 function renderCurrentPoem() {
   if (!filteredPoems[currentIndex]) return;
 
@@ -97,9 +115,9 @@ function renderCurrentPoem() {
   poemElement.className = 'poem p-8 md:p-12 flex flex-col justify-center';
 
   poemElement.innerHTML = `
-    <div class="text-2xl font-serif text-gray-700 dark:text-gray-200 mb-1">${formatDate(poem.date)}</div>
+    <div class="poem-date text-2xl font-serif text-gray-700 dark:text-gray-200 mb-1">${formatDate(poem.date)}</div>
     ${poem.subdate ? `<div class="text-sm italic text-gray-400 mb-3">${poem.subdate}</div>` : ''}
-    ${poem.title ? `<div class="text-2xl font-serif text-gray-600 dark:text-gray-300 mb-6">${highlight(poem.title)}</div>` : ''}
+${poem.title ? `<div class="poem-title text-2xl font-serif text-gray-600 dark:text-gray-300 mb-6">${highlight(poem.title)}</div>` : ''}
     <div class="text-lg md:text-xl font-serif leading-relaxed max-w-2xl mx-auto text-gray-500 dark:text-gray-300 prose prose-sm prose-gray break-words">
       ${highlight(poem.content)}
     </div>
@@ -119,19 +137,7 @@ function updateSidebarActiveItem() {
   });
 }
 
-function highlight(text) {
-  const query = searchInput?.value.toLowerCase().trim();
-  if (!query || query.length < 2) return text;
-
-  const pattern = searchMode.checked
-    ? query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    : `\\b${query}\\b`;
-
-  const regex = new RegExp(`(${pattern})`, 'gi');
-
-  return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-600 text-black dark:text-white rounded px-1">$1</mark>');
-}
-
+// Nawigacja
 prevPoemBtn.addEventListener('click', () => {
   if (currentIndex > 0) {
     currentIndex--;
@@ -148,6 +154,70 @@ nextPoemBtn.addEventListener('click', () => {
   }
 });
 
+// Wyszukiwanie + reset
+function runSearch() {
+  const query = searchInput.value.toLowerCase().trim();
+
+  if (!query || query.length < 2) {
+    filteredPoems = [...poems];
+    const today = new Date().toISOString().slice(0, 10);
+    const todayIndex = poems.findIndex(poem => poem.date === today);
+    currentIndex = todayIndex !== -1 ? todayIndex : 0;
+    renderPoemList();
+    renderCurrentPoem();
+    return;
+  }
+
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = searchMode.checked
+    ? `\\b${escaped}\\b`
+    : escaped;
+
+  const queryRegex = new RegExp(pattern, 'i');
+
+  filteredPoems = poems.filter(poem =>
+    queryRegex.test(formatDate(poem.date)) ||
+    (poem.title && queryRegex.test(poem.title)) ||
+    (poem.content && queryRegex.test(poem.content))
+  );
+
+  currentIndex = 0;
+  renderPoemList();
+  renderCurrentPoem();
+}
+
+
+searchInput.addEventListener('input', () => {
+  clearSearchBtn.classList.toggle('hidden', searchInput.value.trim().length === 0);
+  runSearch();
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    clearSearch();
+  }
+});
+
+clearSearchBtn.addEventListener('click', clearSearch);
+
+function clearSearch() {
+  searchInput.value = '';
+  clearSearchBtn.classList.add('hidden');
+  filteredPoems = [...poems];
+  const today = new Date().toISOString().slice(0, 10);
+  const todayIndex = poems.findIndex(poem => poem.date === today);
+  currentIndex = todayIndex !== -1 ? todayIndex : 0;
+  renderPoemList();
+  renderCurrentPoem();
+}
+searchMode.addEventListener('change', () => {
+  if (searchInput.value.trim().length >= 2) {
+    runSearch();
+  }
+});
+
+
+// Pobranie wierszy
 fetch('./poems.json')
   .then(response => response.json())
   .then(data => {
@@ -167,43 +237,6 @@ fetch('./poems.json')
     currentIndex = todayIndex !== -1 ? todayIndex : 0;
 
     filteredPoems = [...poems];
-
     renderPoemList();
     renderCurrentPoem();
   });
-
-// wyszukiwanie na żywo
-if (searchInput) {
-  searchInput.addEventListener('input', runSearch);
-}
-if (searchMode) {
-  searchMode.addEventListener('change', runSearch);
-}
-
-function runSearch() {
-  const query = searchInput.value.toLowerCase().trim();
-
-  if (!query || query.length < 2) {
-    filteredPoems = [...poems];
-    currentIndex = 0;
-    renderPoemList();
-    renderCurrentPoem();
-    return;
-  }
-
-  const pattern = searchMode.checked
-    ? query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    : `\\b${query}\\b`;
-
-  const queryRegex = new RegExp(pattern, 'i');
-
-  filteredPoems = poems.filter(poem =>
-    queryRegex.test(formatDate(poem.date)) ||
-    (poem.title && queryRegex.test(poem.title)) ||
-    (poem.content && queryRegex.test(poem.content))
-  );
-
-  currentIndex = 0;
-  renderPoemList();
-  renderCurrentPoem();
-}

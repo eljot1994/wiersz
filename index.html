@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Przestrzeń na wiersze</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
@@ -39,12 +40,19 @@
     <div class="h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
       </div>
       <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-  <input id="poemSearch" type="text" placeholder="Szukaj wiersza..." 
-         class="w-full px-3 py-2 mb-2 text-sm rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300" />
-  <label class="text-xs text-gray-500 dark:text-gray-400 inline-flex items-center space-x-2">
-    <input type="checkbox" id="searchMode" class="accent-amber-500">
-    <span>Szukaj dowolnego fragmentu</span>
-  </label>
+  <div class="relative mb-2">
+  <input id="poemSearch" type="text" placeholder="Szukaj wiersza..."
+    class="w-full px-3 py-2 pr-8 text-sm rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300" />
+  <button id="clearSearchBtn" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hidden">
+    <i class="fas fa-times text-sm"></i>
+  </button>
+</div>
+
+<label class="text-xs text-gray-500 dark:text-gray-400 inline-flex items-center space-x-2">
+  <input type="checkbox" id="searchMode" class="accent-amber-500">
+  <span>Szukaj tylko całych słów</span>
+</label>
+
 </div>
 
 
@@ -70,9 +78,10 @@
         <button id="nextPoemBtn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
           <i class="fas fa-chevron-right"></i>
         </button>
-        <button id="toggleDark" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-xl">
-          <i id="themeIcon" class="fas fa-moon"></i>
-        </button>
+       <button id="toggleTheme" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-xl">
+  <i id="themeIcon" class="fas fa-sun"></i>
+</button>
+
       </div>
     </header>
 
@@ -83,43 +92,60 @@
 
   <script src="./script.js"></script>
   <script>
-    // Sidebar toggle
-    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
+  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const html = document.documentElement;
+  const themeIcon = document.getElementById('themeIcon');
+  const toggleTheme = document.getElementById('toggleTheme');
 
-    function toggleSidebar() {
-      const isOpen = !sidebar.classList.contains('-translate-x-full');
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden', isOpen);
-    }
+  const themes = ['light', 'poetic', 'dark'];
+  let currentThemeIndex = 0;
 
-    toggleSidebarBtn.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
+function setTheme(theme) {
+  html.classList.remove('dark', 'theme-poetic', 'theme-light');
+  if (theme === 'dark') html.classList.add('dark');
+  if (theme === 'poetic') html.classList.add('theme-poetic');
+  if (theme === 'light') html.classList.add('theme-light');
+  localStorage.setItem('theme', theme);
+  updateThemeIcon(theme);
+}
 
-    // Dark mode system preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const storedTheme = localStorage.getItem('theme');
-    const html = document.documentElement;
-    const icon = document.getElementById('themeIcon');
+function updateThemeIcon(theme) {
+  if (theme === 'light') {
+    themeIcon.className = 'fas fa-sun'; // czarno-biały klasyczny
+  } else if (theme === 'poetic') {
+    themeIcon.className = 'fas fa-feather-alt'; // poetycki
+  } else {
+    themeIcon.className = 'fas fa-moon'; // ciemny
+  }
+}
 
-    function updateThemeIcon() {
-      icon.className = html.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
-    }
 
-    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
-      html.classList.add('dark');
-    } else {
-      html.classList.remove('dark');
-    }
-    updateThemeIcon();
+  function cycleTheme() {
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    setTheme(themes[currentThemeIndex]);
+  }
 
-    // Toggle and persist
-    document.getElementById('toggleDark').addEventListener('click', () => {
-      html.classList.toggle('dark');
-      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-      updateThemeIcon();
-    });
-  </script>
+  toggleTheme.addEventListener('click', cycleTheme);
+
+  // Inicjalizacja
+  const storedTheme = localStorage.getItem('theme');
+  const initialTheme = themes.includes(storedTheme) ? storedTheme : 'light';
+  currentThemeIndex = themes.indexOf(initialTheme);
+  setTheme(initialTheme);
+
+  toggleSidebarBtn.addEventListener('click', () => {
+    const isOpen = !sidebar.classList.contains('-translate-x-full');
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden', isOpen);
+  });
+
+  overlay.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+</script>
+
 </body>
 </html>
